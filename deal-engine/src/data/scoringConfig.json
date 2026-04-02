@@ -1,0 +1,59 @@
+{
+  "version": "1.0",
+  "method": "Deal Tribunal backtesting (13 labeled deals)",
+  "weights": {
+    "thesis_alignment": 25,
+    "financial_health": 25,
+    "operational_readiness": 20,
+    "key_person_risk": 15,
+    "value_creation": 15
+  },
+  "classification_thresholds": {
+    "strong_fit": 75,
+    "conditional": 50,
+    "below_thesis": 25
+  },
+  "key_thresholds": {
+    "prime_cost_red_pct": 68,
+    "ebitda_baseline_pct": 20,
+    "avt_red_pct": 5,
+    "fdi_red": 6,
+    "lease_cost_red_pct": 10,
+    "revenue_platform_min_M": 25,
+    "revenue_platform_max_M": 80,
+    "gm_tenure_red_months": 12,
+    "avg_check_min": 50
+  },
+  "circuit_breakers": [
+    {"id": "CB-1", "rule": "Cuisine not Mediterranean/Italian", "action": "pass"},
+    {"id": "CB-2", "rule": "Revenue < $25M", "action": "reclassify_addon"},
+    {"id": "CB-3", "rule": "FDI >= 6 AND readiness = low", "action": "pass"},
+    {"id": "CB-4", "rule": "Active litigation on core assets", "action": "suspended"},
+    {"id": "CB-5", "rule": "Lease cost > 10% with term > 3yr", "action": "severe_penalty"}
+  ],
+  "nonlinear_modifiers": [
+    {"id": "M-1", "rule": "GM tenure < 12mo", "effect": "FDI += 2 (cap 8)"},
+    {"id": "M-2", "rule": "No professional CFO", "effect": "FDI += 1 (cap 8)"},
+    {"id": "M-3", "rule": "AvT > 5%", "effect": "FDI += 1 (cap 8)"},
+    {"id": "M-4", "rule": "Single-city + FDI >= 4", "effect": "D4 -= 15"},
+    {"id": "M-5", "rule": "Seasonality > 60% in 6mo", "effect": "D2 -= 10, D3 -= 10, D5 -= 8"},
+    {"id": "M-6", "rule": "Prior expansion failure", "effect": "D5 -= 10"},
+    {"id": "M-7", "rule": "EBITDA >= 23% + prime <= 60%", "effect": "Reclassify value_creation_type to platform_acceleration"},
+    {"id": "M-8", "rule": "Tech = dormant", "effect": "D3 += 15 (not 25), add data_asset flag"}
+  ],
+  "fdi_v2_matrix": {
+    "description": "D4 score from structural FDI (0-8, proxy-adjusted) x transitional readiness",
+    "bands": {
+      "fdi_0_2": {"high": "90-95", "medium": "85-90", "low": "80-85"},
+      "fdi_3_5": {"high": "60-75", "medium": "40-55", "low": "20-35"},
+      "fdi_6_8": {"high": "35-50", "medium": "15-30", "low": "CB-3 Pass"}
+    },
+    "proxy_indicators": ["GM tenure <12mo (+2)", "No pro CFO (+1)", "AvT >5% (+1)"],
+    "geographic_amplifier": "Single-city + FDI >= 4 -> D4 -= 15"
+  },
+  "composite_modifiers": {
+    "lease_with_seasonality": {"condition": "lease_pct > 10 AND seasonality", "effect": "composite x 0.65"},
+    "lease_without_seasonality": {"condition": "lease_pct > 10", "effect": "composite x 0.80"}
+  },
+  "calibration_accuracy": "100%"
+}
