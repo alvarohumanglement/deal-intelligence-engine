@@ -1,0 +1,119 @@
+/* 
+ * Design System Tokens — Portfolio Unified
+ * Import in globals.css or layout.tsx
+ * Same tokens for engine (Next.js) and web (Framer)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  /* ─── Foundations ─── */
+  --ink:            #1a1a18;
+  --paper:          #faf9f6;
+  --paper-warm:     #f5f2ed;
+  --muted:          #6b6862;
+  --hint:           #9c9a92;
+  --divider:        rgba(26, 26, 24, 0.10);
+  --divider-strong: rgba(26, 26, 24, 0.20);
+
+  /* ─── Copper accent ─── */
+  --copper:         #9a7b4f;
+  --copper-light:   #c4a87a;
+  --copper-wash:    rgba(154, 123, 79, 0.08);
+  --copper-hover:   rgba(154, 123, 79, 0.12);
+
+  /* ─── Scoring ─── */
+  --score-high:     #2d5a47;
+  --score-high-bg:  #eef4f0;
+  --score-mid:      #8b6c2f;
+  --score-mid-bg:   #f8f3ea;
+  --score-low:      #8b3a2f;
+  --score-low-bg:   #f8efed;
+
+  /* ─── Flags (aliased to scoring) ─── */
+  --flag-green:     var(--score-high);
+  --flag-green-bg:  var(--score-high-bg);
+  --flag-amber:     var(--score-mid);
+  --flag-amber-bg:  var(--score-mid-bg);
+  --flag-red:       var(--score-low);
+  --flag-red-bg:    var(--score-low-bg);
+
+  /* ─── Data visualization ─── */
+  --data-primary:   #2d5a47;
+  --data-secondary: #8b6c2f;
+  --data-danger:    #8b3a2f;
+  --data-baseline:  #9a9890;
+  --data-fill:      rgba(45, 90, 71, 0.10);
+
+  /* ─── Typography ─── */
+  --font-display:   'Cormorant Garamond', Georgia, serif;
+  --font-body:      'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ─── Spacing ─── */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+  --space-2xl: 64px;
+
+  /* ─── Radii ─── */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+}
+
+/* ─── Base ─── */
+
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Headings ─── */
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 36px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+/* ─── Interactive ─── */
+
+a {
+  color: var(--copper);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+button, input, select, textarea {
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: var(--copper-wash);
+}
