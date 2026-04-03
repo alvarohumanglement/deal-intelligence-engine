@@ -3,3 +3,75 @@
 @tailwind utilities;
 
 @import './tokens.css';
+
+/* ─── C8: Print stylesheet ─── */
+
+@media print {
+  @page {
+    margin: 20mm;
+    size: A4;
+  }
+
+  body {
+    font-size: 12px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: white !important;
+  }
+
+  /* Hide UI elements */
+  header,
+  footer,
+  nav,
+  .no-print,
+  button:not(.scorecard-verdict),
+  input,
+  select,
+  textarea,
+  [class*="ThesisFooter"],
+  [class*="animate-spin"] {
+    display: none !important;
+  }
+
+  /* Show scorecard content */
+  .scorecard-root {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Summary card first in print */
+  .scorecard-summary {
+    order: -1;
+    break-after: avoid;
+  }
+
+  /* Keep cards together */
+  .scorecard-root > div {
+    break-inside: avoid;
+    margin-bottom: 12px !important;
+  }
+
+  /* Reduce spacing */
+  .scorecard-root {
+    gap: 12px !important;
+  }
+
+  /* Print footer */
+  .scorecard-root::after {
+    content: "Deal Intelligence Engine — Heritage Experience Platforms — " attr(data-print-date);
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    color: #9c9a92;
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 0.5px solid rgba(26, 26, 24, 0.10);
+  }
+
+  /* Ensure colors print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

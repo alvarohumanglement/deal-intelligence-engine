@@ -3,6 +3,26 @@ import { GoogleGenAI } from '@google/genai'
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
 
+// ─── P6: In-memory rate limiter (10 req/IP/hour) ──────────
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT = 10
+const WINDOW_MS = 60 * 60 * 1000 // 1 hour
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const entry = rateLimitMap.get(ip)
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + WINDOW_MS })
+    return true
+  }
+
+  if (entry.count >= RATE_LIMIT) return false
+
+  entry.count++
+  return true
+}
+
 const SYSTEM_PROMPT = `You are a senior investment analyst at a PE firm focused on premium hospitality.
 Write a concise investment memo (120-150 words) in IC-ready language.
 Use third person. No bullet points. No markdown.
@@ -11,6 +31,18 @@ Structure: opening thesis sentence, key strengths, key risks, closing recommenda
 Reference specific numbers from the data provided.`
 
 export async function POST(request: NextRequest) {
+  // Rate limit check
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    ?? request.headers.get('x-real-ip')
+    ?? 'unknown'
+
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json(
+      { error: 'Rate limit exceeded. Try again in a few minutes.' },
+      { status: 429 }
+    )
+  }
+
   try {
     const { deal, scores } = await request.json()
 
@@ -40,12 +72,14 @@ ${scores.flags.map((f: { type: string; text: string }) => `[${f.type.toUpperCase
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_PROMPT,
-        maxOutputTokens: 300,
+        maxOutputTokens: 512,
         temperature: 0.7,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     })
 
-    const memo = response.text?.trim() ?? ''
+    const parts = response.candidates?.[0]?.content?.parts ?? []
+    const memo = parts.map((p: { text?: string }) => p.text ?? '').join('').trim()
 
     return NextResponse.json({ memo })
   } catch (error) {
