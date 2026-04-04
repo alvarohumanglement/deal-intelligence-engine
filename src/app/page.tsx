@@ -134,15 +134,19 @@ function HomeContent() {
 
     if (result.circuit_breakers.length === 0) {
       try {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 15000)
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deal, scores: result }),
+          signal: controller.signal,
         })
+        clearTimeout(timeout)
         const data = await res.json()
         setDemo(prev => prev ? { ...prev, memo: data.memo ?? null, loading: false } : null)
       } catch {
-        setDemo(prev => prev ? { ...prev, loading: false } : null)
+        setDemo(prev => prev ? { ...prev, memo: '__timeout__', loading: false } : null)
       }
     } else {
       setDemo(prev => prev ? { ...prev, loading: false } : null)
@@ -153,29 +157,29 @@ function HomeContent() {
   if (selected === 'demo' && started) {
     return (
       <main className="min-h-screen flex flex-col">
-        <header className="border-b border-ink/5 px-6 py-4 flex items-center justify-between">
-          <h1 className="font-display text-xl text-ink">Deal Intelligence Engine</h1>
+        <header className="border-b border-ink/5 px-5 md:px-6 py-4 flex items-center justify-between">
+          <h1 className="font-display text-lg md:text-xl text-ink">Deal Intelligence Engine</h1>
           <button onClick={goBack} className="font-body text-sm text-hint hover:text-copper transition-colors">
             Back
           </button>
         </header>
 
-        <div className="flex-1 px-6 py-8 max-w-5xl mx-auto w-full">
-          <p className="font-body text-xs tracking-wider uppercase text-hint mb-6">Select a deal to analyze</p>
+        <div className="flex-1 px-4 md:px-6 py-6 md:py-8 max-w-5xl mx-auto w-full">
+          <p className="font-body text-xs tracking-wider uppercase text-hint mb-4 md:mb-6">Select a deal to analyze</p>
 
-          <div className="flex gap-3 mb-8 flex-wrap">
+          <div className="flex gap-2 md:gap-3 mb-6 md:mb-8 flex-wrap">
             {preloadedDeals.map((deal, idx) => (
               <button
                 key={deal.name}
                 onClick={() => runDeal(idx)}
-                className={`px-4 py-2.5 rounded-card border text-left transition-all duration-200 ${
+                className={`px-3 md:px-4 py-2 md:py-2.5 rounded-card border text-left transition-all duration-200 ${
                   activeDealIdx === idx
                     ? 'border-copper bg-copper/[0.04]'
                     : 'border-ink/10 bg-white hover:border-copper/40'
                 }`}
               >
-                <span className="font-body text-sm text-ink block">{deal.name}</span>
-                <span className="font-body text-xs text-hint">{deal.subtitle}</span>
+                <span className="font-body text-xs md:text-sm text-ink block">{deal.name}</span>
+                <span className="font-body text-[11px] md:text-xs text-hint">{deal.subtitle}</span>
               </button>
             ))}
           </div>
@@ -202,14 +206,14 @@ function HomeContent() {
   if ((selected === 'manual' || selected === 'synthetic') && started) {
     return (
       <main className="min-h-screen flex flex-col">
-        <header className="border-b border-ink/5 px-6 py-4 flex items-center justify-between">
-          <h1 className="font-display text-xl text-ink">Deal Intelligence Engine</h1>
+        <header className="border-b border-ink/5 px-5 md:px-6 py-4 flex items-center justify-between">
+          <h1 className="font-display text-lg md:text-xl text-ink">Deal Intelligence Engine</h1>
           <button onClick={goBack} className="font-body text-sm text-hint hover:text-copper transition-colors">
             Back
           </button>
         </header>
 
-        <div className="flex-1 px-6 py-8">
+        <div className="flex-1 px-4 md:px-6 py-6 md:py-8">
           {selected === 'manual' ? <ManualPath /> : <SyntheticPath />}
         </div>
 
@@ -229,21 +233,21 @@ function HomeContent() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <section className="flex flex-col items-center justify-center pt-24 pb-16 px-6">
-        <p className="font-body text-sm tracking-widest uppercase text-hint mb-4">
+      <section className="flex flex-col items-center justify-center pt-14 md:pt-24 pb-10 md:pb-16 px-5 md:px-6">
+        <p className="font-body text-xs md:text-sm tracking-widest uppercase text-hint mb-3 md:mb-4">
           Heritage Experience Platforms
         </p>
-        <h1 className="font-display font-normal text-5xl md:text-6xl text-ink text-center leading-tight tracking-tight">
+        <h1 className="font-display font-normal text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-ink text-center leading-tight tracking-tight">
           Deal Intelligence Engine
         </h1>
-        <div className="mt-5 w-12 border-t-2 border-copper/30" />
-        <p className="font-body text-muted text-base md:text-lg mt-5 max-w-2xl text-center leading-relaxed">
+        <div className="mt-4 md:mt-5 w-12 border-t-2 border-copper/30" />
+        <p className="font-body text-muted text-sm md:text-base lg:text-lg mt-4 md:mt-5 max-w-2xl text-center leading-relaxed">
           Your team screens 200+ CIMs per year to close 3 deals. This engine does the first-pass analysis in 30 seconds — scored against a calibrated investment thesis for premium hospitality.
         </p>
       </section>
 
-      <section className="flex flex-col items-center px-6 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl w-full">
+      <section className="flex flex-col items-center px-5 md:px-6 pb-10 md:pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 max-w-4xl w-full">
           {paths.map((path) => {
             const isDemo = path.id === 'demo'
             const isSelected = selected === path.id
@@ -252,7 +256,7 @@ function HomeContent() {
                 key={path.id}
                 onClick={() => setSelected(path.id)}
                 className={`
-                  group text-left p-6 rounded-card transition-all duration-200 border
+                  group text-left p-4 md:p-6 rounded-card transition-all duration-200 border
                   ${isSelected
                     ? 'border-copper bg-copper/[0.04]'
                     : isDemo
@@ -264,7 +268,7 @@ function HomeContent() {
                 <span className="inline-block font-body text-[11px] tracking-wider uppercase text-hint mb-3">
                   {path.label}
                 </span>
-                <h2 className="font-display text-2xl font-normal text-ink mb-2 leading-snug">
+                <h2 className="font-display text-xl md:text-2xl font-normal text-ink mb-2 leading-snug">
                   {path.title}
                 </h2>
                 <p className="font-body text-sm text-muted leading-relaxed">
@@ -287,27 +291,27 @@ function HomeContent() {
         {selected && (
           <button
             onClick={handleContinue}
-            className="mt-8 px-8 py-3 bg-ink text-paper font-body text-sm tracking-wide rounded-card hover:bg-ink/90 transition-colors duration-200"
+            className="mt-6 md:mt-8 w-full md:w-auto px-8 py-3.5 md:py-3 bg-ink text-paper font-body text-sm tracking-wide rounded-card hover:bg-ink/90 transition-colors duration-200"
           >
             Continue
           </button>
         )}
       </section>
 
-      <section className="px-6 pb-16">
+      <section className="px-5 md:px-6 pb-12 md:pb-16">
         <div className="max-w-2xl mx-auto">
           <p className="font-body text-xs tracking-wider uppercase text-hint mb-5 text-center">See the output</p>
 
-          <div className="border border-ink/10 rounded-card p-6 bg-white">
-            <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
+            <div className="flex items-start justify-between gap-3 md:gap-4 mb-4">
               <div>
-                <h3 className="font-display text-xl text-ink">{preloadedDeals[0].name}</h3>
+                <h3 className="font-display text-lg md:text-xl text-ink">{preloadedDeals[0].name}</h3>
                 <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-body mt-1.5 ${previewClassification.color} ${previewClassification.bg}`}>
                   {previewClassification.label}
                 </span>
               </div>
               <div className="text-right">
-                <span className="font-display text-4xl leading-none text-ink">{castellucciPreview.composite}</span>
+                <span className="font-display text-3xl md:text-4xl leading-none text-ink">{castellucciPreview.composite}</span>
                 <span className="font-body text-xs text-hint block mt-0.5">/100</span>
               </div>
             </div>

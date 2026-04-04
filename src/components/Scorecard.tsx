@@ -327,24 +327,24 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
   const fdi = result.fdi_v2
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 scorecard-root" data-print-date={new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}>
+    <div className="max-w-2xl mx-auto space-y-4 md:space-y-6 scorecard-root" data-print-date={new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}>
       {/* C7: One-line verdict */}
-      <p className="font-body font-medium text-[15px] text-ink leading-relaxed scorecard-verdict">
+      <p className="font-body font-medium text-sm md:text-[15px] text-ink leading-relaxed scorecard-verdict">
         {verdict}
       </p>
 
       {/* Header + Score + Value Creation Badge */}
-      <div className="border border-ink/10 rounded-card p-6 bg-white">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="font-display text-2xl text-ink">{dealName}</h2>
-            <div className={`inline-block px-3 py-1 rounded-full text-sm font-body ${classification.color} ${classification.bg} mt-2`}>
+      <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
+        <div className="flex items-start justify-between gap-3 md:gap-4">
+          <div className="min-w-0">
+            <h2 className="font-display text-xl md:text-2xl text-ink">{dealName}</h2>
+            <div className={`inline-block px-2.5 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-body ${classification.color} ${classification.bg} mt-2`}>
               {classification.label}
             </div>
           </div>
-          <div className="text-right">
-            <span className="font-display text-5xl leading-none text-ink">{result.composite}</span>
-            <span className="font-body text-sm text-hint block mt-1">/100</span>
+          <div className="text-right flex-shrink-0">
+            <span className="font-display text-4xl md:text-5xl leading-none text-ink">{result.composite}</span>
+            <span className="font-body text-xs md:text-sm text-hint block mt-1">/100</span>
           </div>
         </div>
 
@@ -375,12 +375,12 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
       </div>
 
       {/* C3: Radar Chart + Dimension Bars */}
-      <div className="border border-ink/10 rounded-card p-6 bg-white">
+      <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
         <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-4">Dimension Scores</h3>
 
         {/* Radar chart */}
-        <div className="flex justify-center mb-6">
-          <svg width={radarSize} height={radarSize} viewBox={`0 0 ${radarSize} ${radarSize}`} className="max-w-[280px]">
+        <div className="flex justify-center mb-4 md:mb-6">
+          <svg viewBox={`0 0 ${radarSize} ${radarSize}`} className="w-full max-w-[240px] md:max-w-[280px]">
             {/* Grid rings */}
             {[25, 50, 75, 100].map(level => (
               <polygon
@@ -439,8 +439,8 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
           {(Object.entries(result.dimensions) as [string, number][]).map(([key, score]) => (
             <div key={key}>
               <div className="flex items-center justify-between mb-1">
-                <span className="font-body text-sm text-ink">{dimensionLabels[key]}</span>
-                <span className="font-body text-sm text-muted tabular-nums">{score}</span>
+                <span className="font-body text-xs md:text-sm text-ink">{dimensionLabels[key]}</span>
+                <span className="font-body text-xs md:text-sm text-muted tabular-nums">{score}</span>
               </div>
               <div className={`relative h-2 rounded-full ${scoreTrackColor(score)}`}>
                 <div
@@ -461,7 +461,7 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
 
       {/* C5: FDI v2.0 detail panel */}
       {fdi && (
-        <div className="border border-ink/10 rounded-card p-6 bg-white">
+        <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
           <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-4">Founder Dependency Index — v2.0</h3>
           <div className="flex items-baseline gap-1.5 mb-3">
             <span className="font-display text-3xl text-ink">{fdi.declared}</span>
@@ -504,13 +504,13 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
       )}
 
       {/* Flags */}
-      <div className="border border-ink/10 rounded-card p-6 bg-white">
+      <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
         <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-4">Flags</h3>
         <div className="flex flex-wrap gap-2">
           {result.flags.map((flag, i) => (
             <span
               key={i}
-              className={`inline-block px-3 py-1 rounded-full text-xs font-body leading-relaxed ${flagStyle(flag.type)}`}
+              className={`inline-block px-2.5 md:px-3 py-1 rounded-full text-[11px] md:text-xs font-body leading-relaxed ${flagStyle(flag.type)}`}
             >
               {flag.text}
             </span>
@@ -519,26 +519,31 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
       </div>
 
       {/* Mini-Memo */}
-      {memo && (
-        <div className="border border-ink/10 rounded-card p-6 bg-white">
+      {memo && memo !== '__timeout__' && (
+        <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
           <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-4">Investment Memo</h3>
-          <div className="border-l-2 border-copper pl-5">
-            <p className="font-display text-base text-ink leading-relaxed whitespace-pre-line">
+          <div className="border-l-2 border-copper pl-4 md:pl-5">
+            <p className="font-display text-sm md:text-base text-ink leading-relaxed whitespace-pre-line">
               {memo}
             </p>
           </div>
         </div>
       )}
+      {memo === '__timeout__' && (
+        <p className="font-body text-xs text-hint italic text-center leading-relaxed">
+          Investment memo generation temporarily unavailable. All scoring data above is complete and deterministic.
+        </p>
+      )}
 
       {/* Margin Expansion */}
       {result.margin_expansion && (
-        <div className="border border-ink/10 rounded-card p-6 bg-white">
+        <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
           <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-4">Margin Expansion Potential</h3>
           <div className="flex items-baseline gap-2 mb-4">
-            <span className="font-display text-3xl text-ink">{result.margin_expansion.bps}</span>
+            <span className="font-display text-2xl md:text-3xl text-ink">{result.margin_expansion.bps}</span>
             <span className="font-body text-sm text-muted">bps</span>
             <span className="font-body text-sm text-hint mx-1">&middot;</span>
-            <span className="font-display text-3xl text-ink">${result.margin_expansion.dollars_M}M</span>
+            <span className="font-display text-2xl md:text-3xl text-ink">${result.margin_expansion.dollars_M}M</span>
           </div>
           <div className="space-y-2">
             {result.margin_expansion.sources.map((s, i) => (
@@ -553,7 +558,7 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
 
       {/* Deal Structure Advisory */}
       {result.deal_structure_advisory.length > 0 && (
-        <div className="border border-ink/10 rounded-card p-6 bg-white">
+        <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
           <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-4">Deal Structure Advisory</h3>
           <div className="space-y-3">
             {result.deal_structure_advisory.map((a, i) => (
@@ -569,20 +574,20 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
       {entryEcon && (() => {
         const econ = entryEcon
         return (
-          <div className="rounded-card p-6 bg-paper-warm">
+          <div className="rounded-card p-4 md:p-6 bg-paper-warm">
             <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-4">Entry Economics (indicative)</h3>
-            <div className="flex gap-6 mb-4">
+            <div className="grid grid-cols-3 gap-3 md:gap-6 mb-4">
               <div>
-                <span className="font-body text-xs text-hint block">Implied EBITDA</span>
-                <span className="font-display text-2xl text-ink">${econ.ebitda}M</span>
+                <span className="font-body text-[11px] md:text-xs text-hint block">Implied EBITDA</span>
+                <span className="font-display text-lg md:text-2xl text-ink">${econ.ebitda}M</span>
               </div>
               <div>
-                <span className="font-body text-xs text-hint block">Implied EV at 7.0x</span>
-                <span className="font-display text-2xl text-ink">${econ.rows[1].ev}M</span>
+                <span className="font-body text-[11px] md:text-xs text-hint block">EV at 7.0x</span>
+                <span className="font-display text-lg md:text-2xl text-ink">${econ.rows[1].ev}M</span>
               </div>
               <div>
-                <span className="font-body text-xs text-hint block">Equity required (60%)</span>
-                <span className="font-display text-2xl text-ink">${econ.rows[1].equity}M</span>
+                <span className="font-body text-[11px] md:text-xs text-hint block">Equity (60%)</span>
+                <span className="font-display text-lg md:text-2xl text-ink">${econ.rows[1].equity}M</span>
               </div>
             </div>
 
@@ -608,7 +613,7 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
       {/* C5: Time to Value estimator */}
       {timeline && (() => {
         return (
-          <div className="rounded-card p-6 bg-paper-warm">
+          <div className="rounded-card p-4 md:p-6 bg-paper-warm">
             <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-3">Estimated Deployment Timeline</h3>
             <p className="font-body text-sm text-ink leading-relaxed">{timeline}</p>
             <p className="mt-3 font-body text-[11px] text-hint">
@@ -623,7 +628,7 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
         const ddItems = generateDDPriorities(result.flags)
         if (ddItems.length === 0) return null
         return (
-          <div className="border border-ink/10 rounded-card p-6 bg-white">
+          <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
             <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-4">Recommended Due Diligence Focus</h3>
             <div className="space-y-3">
               {ddItems.map((item, i) => (
@@ -642,7 +647,7 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
         const levers = computeImprovementLevers(dealData, result.composite)
         if (levers.length === 0) return null
         return (
-          <div className="border border-ink/10 rounded-card p-6 bg-white">
+          <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
             <h3 className="font-body text-xs tracking-wider uppercase text-hint mb-4">Score Improvement Levers</h3>
             <div className="space-y-3">
               {levers.map((lever, i) => (
@@ -663,7 +668,7 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
 
       {/* C9: Deal Summary Card */}
       {dealData && (
-        <div className="rounded-card p-5 bg-paper-warm scorecard-summary">
+        <div className="rounded-card p-4 md:p-5 bg-paper-warm scorecard-summary">
           <div className="flex items-center gap-3 mb-1">
             <span className="font-body font-medium text-base text-ink">{dealName}</span>
             <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-body ${classification.color} ${classification.bg}`}>
@@ -679,9 +684,9 @@ export default function Scorecard({ result, dealName, dealRevenue, dealMargin, d
 
           <div className="my-3 border-t border-ink/10" />
 
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1">
             <span className="font-body font-medium text-sm text-ink">Score: {result.composite}</span>
-            <span className="font-body text-xs text-muted tabular-nums">
+            <span className="font-body text-[11px] md:text-xs text-muted tabular-nums">
               D1:{result.dimensions.d1} D2:{result.dimensions.d2} D3:{result.dimensions.d3} D4:{result.dimensions.d4} D5:{result.dimensions.d5}
             </span>
           </div>

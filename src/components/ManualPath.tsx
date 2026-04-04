@@ -56,6 +56,7 @@ export default function ManualPath() {
   const [leaseCost, setLeaseCost] = useState(8)
 
   const [score, setScore] = useState<ScoreState>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   function toggleCity(city: string) {
     setSelectedCities(prev =>
@@ -73,6 +74,10 @@ export default function ManualPath() {
   const effectivePrimeCost = primeCost ?? cuisineMap[cuisine].primeCost
 
   async function handleScore() {
+    if (revenue < 5) { setValidationError('Minimum revenue: $5M'); return }
+    if (locations < 1) { setValidationError('Minimum 1 location'); return }
+    setValidationError(null)
+
     const age = founderAge === '' ? 52 : founderAge
     const cities = Math.max(1, selectedCities.length)
     const avgCheck = 68
@@ -122,15 +127,19 @@ export default function ManualPath() {
 
     if (result.circuit_breakers.length === 0) {
       try {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 15000)
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deal, scores: result }),
+          signal: controller.signal,
         })
+        clearTimeout(timeout)
         const data = await res.json()
         setScore(prev => prev ? { ...prev, memo: data.memo ?? null, loading: false } : null)
       } catch {
-        setScore(prev => prev ? { ...prev, loading: false } : null)
+        setScore(prev => prev ? { ...prev, memo: '__timeout__', loading: false } : null)
       }
     } else {
       setScore(prev => prev ? { ...prev, loading: false } : null)
@@ -143,8 +152,8 @@ export default function ManualPath() {
   return (
     <div className="max-w-2xl mx-auto w-full">
       {!score ? (
-        <div className="border border-ink/10 rounded-card p-6 bg-white">
-          <h2 className="font-display text-2xl text-ink mb-1">Score your own deal</h2>
+        <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
+          <h2 className="font-display text-xl md:text-2xl text-ink mb-1">Score your own deal</h2>
           <p className="font-body text-sm text-muted mb-6">Enter key parameters. Conservative defaults fill the rest.</p>
 
           <div className="space-y-5">
@@ -200,10 +209,10 @@ export default function ManualPath() {
             {/* Geography */}
             <div>
               <label className="font-body text-xs tracking-wider uppercase text-hint block mb-2">Geography</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 md:gap-2">
                 {metros.map(city => (
                   <button key={city} type="button" onClick={() => toggleCity(city)}
-                    className={`px-3 py-1.5 rounded-md border text-xs font-body transition-all duration-150 ${
+                    className={`px-2 md:px-3 py-2 md:py-1.5 rounded-md border text-[11px] md:text-xs font-body transition-all duration-150 ${
                       selectedCities.includes(city)
                         ? 'border-copper bg-copper/[0.06] text-copper'
                         : 'border-ink/10 text-muted hover:border-copper/30'
@@ -290,9 +299,12 @@ export default function ManualPath() {
             )}
           </div>
 
-          {/* Submit */}
+          {/* Validation + Submit */}
+          {validationError && (
+            <p className="mt-4 font-body text-sm text-score-low">{validationError}</p>
+          )}
           <button onClick={handleScore}
-            className="mt-8 w-full px-6 py-3 bg-ink text-paper font-body text-sm tracking-wide rounded-card hover:bg-ink/90 transition-colors duration-200">
+            className="mt-4 md:mt-6 w-full px-6 py-3.5 md:py-3 bg-ink text-paper font-body text-sm tracking-wide rounded-card hover:bg-ink/90 transition-colors duration-200">
             Score This Deal
           </button>
         </div>

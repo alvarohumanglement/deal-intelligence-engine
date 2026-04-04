@@ -39,8 +39,8 @@ type ScoreState = { result: ScoringResult; memo: string | null; loading: boolean
 
 const metricCell = (label: string, value: string) => (
   <div>
-    <span className="font-body text-[11px] tracking-wider uppercase text-hint block">{label}</span>
-    <span className="font-display text-xl text-ink">{value}</span>
+    <span className="font-body text-[10px] md:text-[11px] tracking-wider uppercase text-hint block">{label}</span>
+    <span className="font-display text-base md:text-xl text-ink">{value}</span>
   </div>
 )
 
@@ -60,15 +60,19 @@ export default function SyntheticPath() {
 
     if (result.circuit_breakers.length === 0) {
       try {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 15000)
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deal, scores: result }),
+          signal: controller.signal,
         })
+        clearTimeout(timeout)
         const data = await res.json()
         setScore(prev => prev ? { ...prev, memo: data.memo ?? null, loading: false } : null)
       } catch {
-        setScore(prev => prev ? { ...prev, loading: false } : null)
+        setScore(prev => prev ? { ...prev, memo: '__timeout__', loading: false } : null)
       }
     } else {
       setScore(prev => prev ? { ...prev, loading: false } : null)
@@ -95,11 +99,11 @@ export default function SyntheticPath() {
   return (
     <div className="max-w-2xl mx-auto w-full space-y-6">
       {/* CIM Card */}
-      <div className="border border-ink/10 rounded-card p-6 bg-white">
-        <div className="flex items-start justify-between gap-4 mb-1">
-          <div>
-            <h2 className="font-display text-2xl text-ink">{deal.name}</h2>
-            <p className="font-body text-sm text-muted mt-1">{deal.city_names.join(' · ')} — {deal.cuisine_label}</p>
+      <div className="border border-ink/10 rounded-card p-4 md:p-6 bg-white">
+        <div className="flex items-start justify-between gap-3 md:gap-4 mb-1">
+          <div className="min-w-0">
+            <h2 className="font-display text-xl md:text-2xl text-ink">{deal.name}</h2>
+            <p className="font-body text-xs md:text-sm text-muted mt-1">{deal.city_names.join(' · ')} — {deal.cuisine_label}</p>
           </div>
           <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-body tracking-wider uppercase bg-copper/[0.08] text-copper">
             Synthetic
@@ -107,7 +111,7 @@ export default function SyntheticPath() {
         </div>
 
         <div className="mt-5 border-t border-ink/5 pt-5">
-          <div className="grid grid-cols-3 gap-x-6 gap-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 md:gap-x-6 gap-y-3 md:gap-y-4">
             {metricCell('Revenue', `$${deal.revenue_M}M`)}
             {metricCell('EBITDA', `${deal.ebitda_margin_pct}% · $${deal.ebitda_M}M`)}
             {metricCell('Prime Cost', `${deal.prime_cost_pct}%`)}
@@ -135,7 +139,7 @@ export default function SyntheticPath() {
         )}
 
         {/* Additional metrics row */}
-        <div className="mt-5 border-t border-ink/5 pt-4 flex flex-wrap gap-x-6 gap-y-1">
+        <div className="mt-5 border-t border-ink/5 pt-4 flex flex-wrap gap-x-3 md:gap-x-6 gap-y-1">
           <span className="font-body text-xs text-hint">Lease {deal.lease_cost_pct}%</span>
           <span className="font-body text-xs text-hint">SSG {deal.ssg_pct}%</span>
           <span className="font-body text-xs text-hint">GM tenure {deal.gm_tenure_months}mo</span>
@@ -149,16 +153,16 @@ export default function SyntheticPath() {
 
       {/* Actions */}
       {!score && (
-        <div className="flex gap-3 justify-center">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-3 justify-center">
           <button
             onClick={handleAnalyze}
-            className="px-8 py-3 bg-ink text-paper font-body text-sm tracking-wide rounded-card hover:bg-ink/90 transition-colors duration-200"
+            className="px-8 py-3.5 md:py-3 bg-ink text-paper font-body text-sm tracking-wide rounded-card hover:bg-ink/90 transition-colors duration-200"
           >
             Analyze This Deal
           </button>
           <button
             onClick={handleGenerate}
-            className="px-6 py-3 border border-ink/10 font-body text-sm text-muted rounded-card hover:border-copper/40 hover:text-copper transition-colors duration-200"
+            className="px-6 py-3.5 md:py-3 border border-ink/10 font-body text-sm text-muted rounded-card hover:border-copper/40 hover:text-copper transition-colors duration-200"
           >
             Generate Another
           </button>
